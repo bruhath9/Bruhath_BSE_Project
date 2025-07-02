@@ -26,7 +26,7 @@ For your final milestone, explain the outcome of your project. Key details to in
 
 For my second milestone, I set up the object-recognition algorithm with my Raspberry Pi. When an object comes into the camera's field of view, a text of that object is displayed on the screen, and if the object is steadily shown on the camera, the text stays in place. The algorithm is run through a machine learning framework called TensorFlow, which allows the Raspberry Pi to run models which can detect images in video streams. The actual model that is detecting the objects is a pre-trained model that has been exposed to many objects beforehand to learn the patterns/attributes of certain objects. The objects consist of a computer keyboard, a laptop, a plastic bag, a water bottle, a coffee mug, etc, all very common objects. 
 
-
+Additionally, a text to speech feature was added through the speech output package called festival. The purpose of the text to speech 
 
 
 # First Milestone
