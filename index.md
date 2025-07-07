@@ -3,6 +3,8 @@ R
 | **Engineer** | **School** | **Area of Interest** | **Grade** |
 |:--:|:--:|:--:|:--:|
 | Bruhath B | Lynbrook High School | Computer Engineering | Incoming Senior
+
+<img src="bruheadshot.JPG" alt="Description" width="300">
   
 # Final Milestone
 
