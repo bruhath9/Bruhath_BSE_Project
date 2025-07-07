@@ -6,7 +6,7 @@ R
 
 <img src="bruheadshot.JPG" alt="Description" width="300">
   
-# Final Milestone
+<!-- # Final Milestone -->
 
 
 # Second Milestone
