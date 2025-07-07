@@ -41,11 +41,12 @@ I chose to complete the Retro Arcade Game for my starter project because I thoug
 
 Above is the simple design for the camera mount to the glasses.
 
-```c++
+<!--
 # Code
 Here's where you'll put your code. The syntax below places it into a block of code. Follow the guide [here]([url](https://www.markdownguide.org/extended-syntax/)) to learn how to customize it to your project needs. 
-```
+`-->
 
+<!--
 ```c++
 void setup() {
   // put your setup code here, to run once:
@@ -57,7 +58,7 @@ void loop() {
   // put your main code here, to run repeatedly:
 
 }
-```
+-->```
 
 # Bill of Materials
 
