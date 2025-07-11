@@ -1,4 +1,4 @@
-R
+<!-- Description goes here -->
 
 | **Engineer** | **School** | **Area of Interest** | **Grade** |
 |:--:|:--:|:--:|:--:|
@@ -38,6 +38,13 @@ Additionally, I set up the photo-taking feature of the Raspberry Pi through a co
 
 ![Headstone Image](IMG_4518.JPG)
 
+# Schematics 
+![Headstone Image](tinkermount.JPG)
+
+Above is the simple design for the camera mount to the glasses.
+
+
+
 # Starter Project: Retro Arcade Game
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/z90Ao1cDq40?si=WT4S7g19cpYrOn5E" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
@@ -47,12 +54,6 @@ I chose to complete the Retro Arcade Game for my starter project because I thoug
 - Multiple components such as buttons (directions, on/off, gamemode change), a buzzer, a score display, the game board, a USB-mini socket (for power), and a battery pack are all soldered onto a PCB.
 - The PCB has an STC microprocessor which processes input from all the buttons when pressed, and also stores and runs code which contains the different games mentioned above.
 - The button actions are processed by the microprocessor through copper traces that are printed on the PCB; the button completes the current that is passing through the resistor and the battery, and when the current is completed, a signal is sent to the microprocessor to complete in action, which can be as simple as scrolling through the games, or rotating a piece in Tetris.
-
-# Schematics 
-![Headstone Image](tinkermount.JPG)
-
-Above is the simple design for the camera mount to the glasses.
-
 
 # Code
 
