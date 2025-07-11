@@ -48,20 +48,147 @@ Above is the simple design for the camera mount to the glasses.
 Here's where you'll put your code. The syntax below places it into a block of code. Follow the guide [here]([url](https://www.markdownguide.org/extended-syntax/)) to learn how to customize it to your project needs. 
 `-->
 
-<!--
-```c++
-void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(9600);
-  Serial.println("Hello World!");
-}
 
-void loop() {
-  // put your main code here, to run repeatedly:
+```python
+from gpiozero import Button
+from picamera2 import Picamera2
+from datetime import datetime
+from picamera2.encoders import H264Encoder
+from picamera2.outputs import FfmpegOutput
+import time
+import os
+import cv2
+import subprocess
+import threading
 
-}
+button = Button(17, pull_up=True, bounce_time=0.05)
+picam2 = Picamera2()
+
+picam2.configure(picam2.create_still_configuration())
+picam2.start()
+
+save_folder = "/home/bru/button_photos"
+os.makedirs(save_folder, exist_ok=True)
+
+encoder = H264Encoder(bitrate=10000000)
+output = None
+
+press_time = None
+recording = False
+check_hold_thread = None
+
+def take_photo():
+    print("Capturing photo...")
+    time.sleep(0.5)
+    im = picam2.capture_array()
+    im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    filepath = os.path.join(save_folder, f"{timestamp}.jpg")
+    cv2.imwrite(filepath, im)
+    print(f"Photo saved to {filepath}")
+    subprocess.run(["rclone", "copy", filepath, "gdrive:button_photos_pi"])
+    print("Photo uploaded to GDrive.")
+    print("Ready.")
+
+def start_video():
+    global recording, video_filepath_h264
+    recording = True
+    print("Starting video recording...")
+
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    video_filepath_h264 = os.path.join(save_folder, f"{timestamp}.h264")
+    print(f"Saving raw video to: {video_filepath_h264}")
+
+    picam2.stop()
+    video_config = picam2.create_video_configuration()
+    picam2.configure(video_config)
+    picam2.start()
+
+    try:
+        picam2.start_recording(encoder, video_filepath_h264)
+        print("Recording started.")
+    except Exception as e:
+        print(f"Error starting recording: {e}")
+        recording = False
+
+
+def stop_video():
+    global recording, video_filepath_h264
+    if recording:
+        print("Stopping video recording...")
+        try:
+            picam2.stop_recording()
+            time.sleep(1)  # Let it flush
+            print("Recording stopped.")
+        except Exception as e:
+            print(f"Error stopping recording: {e}")
+
+        # Convert to MP4 using ffmpeg
+        mp4_filepath = video_filepath_h264.replace(".h264", ".mp4")
+        print(f"Converting {video_filepath_h264} to {mp4_filepath}...")
+        try:
+            subprocess.run([
+                "ffmpeg", "-y", "-framerate", "30",
+                "-i", video_filepath_h264,
+                "-c", "copy", mp4_filepath
+            ], check=True)
+            print("Conversion to MP4 completed.")
+        except subprocess.CalledProcessError as e:
+            print(f"FFmpeg conversion failed: {e}")
+
+        picam2.stop()
+        picam2.configure(picam2.create_still_configuration())
+        picam2.start()
+        recording = False
+        print("Camera reset to photo mode.")
+
+        subprocess.run(["rclone", "copy", mp4_filepath, "gdrive:button_photos_pi"])
+        print("Video uploaded to GDrive.")
+        print("Ready.")
+    else:
+        print("Stop called but recording was not active.")
+
+
+def check_hold():
+    global press_time, recording
+
+    while button.is_pressed:
+        elapsed = time.time() - press_time
+        if elapsed >= 2 and not recording:
+            start_video()
+            break
+        time.sleep(0.05)
+
+def handle_press():
+    global press_time, check_hold_thread
+    press_time = time.time()
+    print("Button pressed, waiting to determine action...")
+    check_hold_thread = threading.Thread(target=check_hold)
+    check_hold_thread.start()
+
+def handle_release():
+    global recording, check_hold_thread
+    hold_time = time.time() - press_time
+    print(f"Button released after {hold_time:.2f} seconds.")
+
+    if recording:
+        stop_video()
+    else:
+        if hold_time < 2:
+            take_photo()
+    if check_hold_thread:
+        check_hold_thread.join()
+
+button.when_pressed = handle_press
+button.when_released = handle_release
+
+print("Ready. Tap for photo, hold for video (>2s).")
+try:
+    while True:
+        time.sleep(0.1)
+except KeyboardInterrupt:
+    print("Exiting.")
 ```
--->
 
 # Bill of Materials
 
