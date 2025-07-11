@@ -18,7 +18,7 @@ The feature that saves the media to Google Drive works through a tool called rcl
 
 I faced a couple of challenges along the way. The first was figuring out which pins on the button to solder my wires to. I didn’t initially realize that the pins farthest apart on the button are always connected, whereas the adjacent pins only connect when the button is pressed, which was exactly the behavior I needed. Another issue came up with saving the video files: even though the terminal said the video was saved, nothing was showing up in the target folder. After some trial and error, I figured out that the problem was related to trying to convert the video from .h264 to .mp4 during the encoding process. This caused some logical conflicts that prevented the video from saving properly. I fixed the issue by modifying the code so that the conversion to .mp4 only happens after the recording is complete, not during. Once I made that change, the videos finally showed up in the folder, although it took a fair bit of debugging and thinking through the logic to pinpoint the issue.
 
-<img src="buttondiagram.JPG" alt="Description" width="500">
+<img src="buttondia.JPG" alt="Description" width="600">
 
 
 # Second Milestone
