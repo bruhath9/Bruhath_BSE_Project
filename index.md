@@ -8,6 +8,16 @@ R
   
 <!-- # Final Milestone -->
 
+# Third Milestone
+
+For my third milestone, I added a photo and video capturing feature using a physical button connected to the Raspberry Pi. The button has two prongs that are soldered to wires, which are in turn connected to the GPIO pins on the Pi; pecifically, one wire goes to GPIO pin 17, and the other to a ground pin to complete the circuit. 
+
+Here’s how it works: when I run the program and press the button, it takes a photo using the camera module and saves it to a folder on both the Raspberry Pi and my Google Drive. If I want to record a video instead, I just press and hold the button for more than 2 seconds. This triggers the video recording function in my code, and the camera continues recording as long as the button is held down. Once I release the button, the video automatically stops and is saved to the same folders as the photo.
+
+The feature that saves the media to Google Drive works through a tool called rclone, which lets you manage files across multiple cloud services like Google Drive, OneDrive, Dropbox, and others. In my code, I use Python’s subprocess module to run external rclone commands that move the photo and video files to a specific folder in my Google Drive. To handle video recording properly, I had to implement an encoder. This is important because raw video data is massive, and without compression, it’s difficult to store or transfer. The encoder I used is H.264, which is a widely used standard that compresses video by eliminating redundant data and reducing file size while keeping good quality. Other encoders are available, but they’re usually designed for handling much larger data streams and would have been overkill for my project.
+
+I faced a couple of challenges along the way. The first was figuring out which pins on the button to solder my wires to. I didn’t initially realize that the pins farthest apart on the button are always connected, whereas the adjacent pins only connect when the button is pressed, which was exactly the behavior I needed. Another issue came up with saving the video files: even though the terminal said the video was saved, nothing was showing up in the target folder. After some trial and error, I figured out that the problem was related to trying to convert the video from .h264 to .mp4 during the encoding process. This caused some logical conflicts that prevented the video from saving properly. I fixed the issue by modifying the code so that the conversion to .mp4 only happens after the recording is complete, not during. Once I made that change, the videos finally showed up in the folder—although it took a fair bit of debugging and thinking through the logic to pinpoint the issue.
+
 
 # Second Milestone
 
