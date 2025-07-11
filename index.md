@@ -43,11 +43,8 @@ I chose to complete the Retro Arcade Game for my starter project because I thoug
 
 Above is the simple design for the camera mount to the glasses.
 
-<!--
-# Code
-Here's where you'll put your code. The syntax below places it into a block of code. Follow the guide [here]([url](https://www.markdownguide.org/extended-syntax/)) to learn how to customize it to your project needs. 
-`-->
 
+# Code
 
 ```python
 from gpiozero import Button
@@ -61,13 +58,13 @@ import cv2
 import subprocess
 import threading
 
-button = Button(17, pull_up=True, bounce_time=0.05)
+button = Button(17, pull_up=True, bounce_time=0.05) # Resistor added to ensure no false button presses
 picam2 = Picamera2()
 
 picam2.configure(picam2.create_still_configuration())
 picam2.start()
 
-save_folder = "/home/bru/button_photos"
+save_folder = "/home/bru/button_photos" # Folder where photos/videos are stored
 os.makedirs(save_folder, exist_ok=True)
 
 encoder = H264Encoder(bitrate=10000000)
@@ -86,7 +83,7 @@ def take_photo():
     filepath = os.path.join(save_folder, f"{timestamp}.jpg")
     cv2.imwrite(filepath, im)
     print(f"Photo saved to {filepath}")
-    subprocess.run(["rclone", "copy", filepath, "gdrive:button_photos_pi"])
+    subprocess.run(["rclone", "copy", filepath, "gdrive:button_photos_pi"]) # Uses rclone raspberry pi package to upload to google drive
     print("Photo uploaded to GDrive.")
     print("Ready.")
 
@@ -110,7 +107,6 @@ def start_video():
     except Exception as e:
         print(f"Error starting recording: {e}")
         recording = False
-
 
 def stop_video():
     global recording, video_filepath_h264
