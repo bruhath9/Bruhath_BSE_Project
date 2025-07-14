@@ -1,4 +1,5 @@
 <!-- Description goes here -->
+Inspired by the high-tech surveillance glasses in James Bond films and Meta’s next-gen AI eyewear, these smart glasses bring spy-level functionality to everyday life. With a single button, you can snap photos or record videos, automatically uploading them to Google Drive, while real-time object detection narrates your surroundings using text-to-speech.
 
 | **Engineer** | **School** | **Area of Interest** | **Grade** |
 |:--:|:--:|:--:|:--:|
