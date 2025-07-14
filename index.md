@@ -10,6 +10,8 @@
 
 # Third Milestone
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/kHtmvWyE1ic?si=vUxc0lrhWm25VTFS" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
 For my third milestone, I added a photo and video capturing feature using a physical button connected to the Raspberry Pi. The button has two prongs that are soldered to wires, which are in turn connected to the GPIO pins on the Pi; pecifically, one wire goes to GPIO pin 17, and the other to a ground pin to complete the circuit. 
 
 Here’s how it works: when I run the program and press the button, it takes a photo using the camera module and saves it to a folder on both the Raspberry Pi and my Google Drive. If I want to record a video instead, I just press and hold the button for more than 2 seconds. This triggers the video recording function in my code, and the camera continues recording as long as the button is held down. Once I release the button, the video automatically stops and is saved to the same folders as the photo.
