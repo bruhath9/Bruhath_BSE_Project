@@ -49,7 +49,7 @@ Above is the simple design for the camera mount to the glasses.
 
 ![Headstone Image](buttonfritz.JPG)
 
-Simple schematic of how I connected the jumper cables from the push button to the Raspberry Pi GPIO pins
+Simple schematic which shows which exact GPIO pins I connected to the push button.
 
 
 # Starter Project: Retro Arcade Game
