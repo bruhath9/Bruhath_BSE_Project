@@ -203,6 +203,79 @@ try:
         time.sleep(0.1)
 except KeyboardInterrupt:
     print("Exiting.")
+
+# BELOW IS CODE FOR THE LIVESTREAMING FEATURE
+
+from flask import Flask, render_template, Response
+from picamera2 import Picamera2
+import cv2
+import time
+
+app = Flask(__name__)
+
+# Initialize camera
+picam2 = Picamera2()
+picam2.configure(picam2.create_video_configuration(main={"size": (1280, 720)}))
+picam2.start()
+
+time.sleep(1)  # Let the camera warm up
+
+def generate_frames():
+    while True:
+        frame = picam2.capture_array()
+
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        # Encode to JPEG
+        _, buffer = cv2.imencode('.jpg', frame)
+        frame_bytes = buffer.tobytes()
+
+        # MJPEG Stream
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+
+@app.route('/')
+def index():
+    return render_template('index.html')  # HTML page
+
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(generate_frames(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5000, debug=False)
+
+# WEBSITE CODE
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bruhath's Live Feed</title>
+    <style>
+        body { text-align: center; background-color: #111; color: #fff; font-family: Arial, sans-serif; }
+        h1 { margin-top: 20px; }
+        #loading { font-size: 36px; margin-top: 50px; }
+    </style>
+</head>
+<body>
+    <h1>Bruhath's Live Feed</h1>
+    <div id="loading">Please wait...</div>
+    <img id="video" src="/video_feed" width="1280" height="720" style="object-fit:contain; display:none; margin-top:20px;"/>
+
+    <script>
+        const video = document.getElementById('video');
+        const loading = document.getElementById('loading');
+
+        video.onload = function() {
+            loading.style.display = 'none';
+            video.style.display = 'block';
+        };
+    </script>
+</body>
+</html>
+
+
 ```
 
 # Bill of Materials
