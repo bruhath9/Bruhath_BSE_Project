@@ -204,7 +204,7 @@ try:
 except KeyboardInterrupt:
     print("Exiting.")
 
-# BELOW IS CODE FOR THE LIVESTREAMING FEATURE
+# BELOW IS CODE FOR THE LIVESTREAMING FEATURE ////////////////////////////////////////////////
 
 from flask import Flask, render_template, Response
 from picamera2 import Picamera2
@@ -246,7 +246,7 @@ def video_feed():
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=False)
 
-# WEBSITE CODE
+# WEBSITE CODE ////////////////////////////////////////////////////////////////////////
 
 <!DOCTYPE html>
 <html>
