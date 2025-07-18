@@ -66,6 +66,10 @@ I chose to complete the Retro Arcade Game for my starter project because I thoug
 # Code
 
 ```python
+# The code below is for my modifications to the smart glasses project.
+
+# This first chunk of code is for the photo/video feature with a button on my Raspberry Pi.
+
 from gpiozero import Button
 from picamera2 import Picamera2
 from datetime import datetime
@@ -204,7 +208,7 @@ try:
 except KeyboardInterrupt:
     print("Exiting.")
 
-# BELOW IS CODE FOR THE LIVESTREAMING FEATURE ////////////////////////////////////////////////
+#------BELOW IS CODE FOR THE LIVESTREAMING FEATURE---------------------------------------------------------------
 
 from flask import Flask, render_template, Response
 from picamera2 import Picamera2
@@ -246,7 +250,7 @@ def video_feed():
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=False)
 
-# WEBSITE CODE ////////////////////////////////////////////////////////////////////////
+#-----BELOW IS CODE FOR THE UI OF THE WEBSITE IN HTML--------------------------------------------------------------------------------
 
 <!DOCTYPE html>
 <html>
@@ -275,7 +279,7 @@ if __name__ == "__main__":
 </body>
 </html>
 
-# BELOW IS CODE FOR THE BLINK DETECTION SYSTEM WITH A BUZZER ///////////////////////////////////////////////////////////////////
+#------BELOW IS CODE FOR THE BLINK DETECTION SYSTEM WITH A BUZZER--------------------------------------------------------------------------------------
 
 import cv2
 import mediapipe as mp
@@ -374,7 +378,6 @@ while True:
 cap.release()
 cv2.destroyAllWindows()
 GPIO.cleanup()
-
 
 
 ```
