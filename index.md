@@ -48,9 +48,9 @@ Additionally, I set up the photo-taking feature of the Raspberry Pi through a co
 
 Above is the simple design for the camera mount to the glasses.
 
-![Headstone Image](buttonfritz.JPG)
+![Headstone Image](fritzschematic.JPG)
 
-Simple schematic which shows which exact GPIO pins I connected to the push button.
+Above diagram shows which GPIO pins I connected my button and buzzer to my Raspberry Pi.
 
 
 # Starter Project: Retro Arcade Game
