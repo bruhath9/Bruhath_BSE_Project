@@ -275,6 +275,107 @@ if __name__ == "__main__":
 </body>
 </html>
 
+# BELOW IS CODE FOR THE BLINK DETECTION SYSTEM WITH A BUZZER ///////////////////////////////////////////////////////////////////
+
+import cv2
+import mediapipe as mp
+import numpy as np
+import RPi.GPIO as GPIO
+import time
+
+BUZZER_PIN = 23
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(BUZZER_PIN, GPIO.OUT)
+
+# Eye aspect ratio threshold
+EYE_AR_THRESHOLD = 0.2
+EYE_CLOSED_DURATION_THRESHOLD = 0.4
+
+# Initialize MediaPipe Face Mesh
+mp_face_mesh = mp.solutions.face_mesh
+face_mesh = mp_face_mesh.FaceMesh(static_image_mode=False, max_num_faces=1, refine_landmarks=True)
+
+# USB camera
+cap = cv2.VideoCapture(0)
+
+# Eye landmark indices for the right eye and left eye (MediaPipe indices)
+RIGHT_EYE = [33, 160, 158, 133, 153, 144]
+LEFT_EYE = [362, 385, 387, 263, 373, 380]
+
+def aspect_ratio(landmarks, eye_indices):
+    points = np.array([[landmarks[i].x, landmarks[i].y] for i in eye_indices])
+    # Horizontal distance
+    hor_dist = np.linalg.norm(points[0] - points[3])
+    # Vertical distance
+    ver_dist1 = np.linalg.norm(points[1] - points[5])
+    ver_dist2 = np.linalg.norm(points[2] - points[4])
+    ver_dist = (ver_dist1 + ver_dist2) / 2.0
+    return ver_dist / hor_dist
+
+eyes_closed_start_time = None
+buzzer_on = False
+
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    # Flip frame for selfie view
+    frame = cv2.flip(frame, 1)
+    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+    results = face_mesh.process(rgb_frame)
+
+    status = "No Face Detected"
+
+    if results.multi_face_landmarks:
+        landmarks = results.multi_face_landmarks[0].landmark
+
+        # Calculate Eye Aspect Ratio for both eyes
+        right_eye_ar = aspect_ratio(landmarks, RIGHT_EYE)
+        left_eye_ar = aspect_ratio(landmarks, LEFT_EYE)
+        avg_eye_ar = (right_eye_ar + left_eye_ar) / 2.0
+
+        current_time = time.time()
+
+        # Check if eyes are open or closed
+        if avg_eye_ar < EYE_AR_THRESHOLD:
+            status = "Eyes Closed"
+            if eyes_closed_start_time is None:
+                eyes_closed_start_time = current_time
+
+            elapsed_time = current_time - eyes_closed_start_time
+
+            if elapsed_time >= EYE_CLOSED_DURATION_THRESHOLD:
+                status = "Eyes Closed"
+                if  not buzzer_on:
+                    GPIO.output(BUZZER_PIN, GPIO.HIGH)
+                    buzzer_on = True
+            else:
+                status = f"Eyes-Closed - {elapsed_time:.1f}s"
+
+        else:
+            eyes_closed_start_time = None
+            if buzzer_on:
+                GPIO.output(BUZZER_PIN, GPIO.LOW)
+                buzzer_on = False
+
+            status = "Eyes Open"
+        time.sleep(0.1)
+        # Draw status text
+        cv2.putText(frame, status, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 3)
+
+    cv2.imshow("Eye State Detection", frame)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
+GPIO.cleanup()
+
+
 
 ```
 
