@@ -48,7 +48,7 @@ Additionally, I set up the photo-taking feature of the Raspberry Pi through a co
 
 Above is the simple design for the camera mount to the glasses.
 
-![Headstone Image](fritzschematic.JPG)
+![Headstone Image](fritschematic.JPG)
 
 Above diagram shows which GPIO pins I connected my button and buzzer to my Raspberry Pi.
 
