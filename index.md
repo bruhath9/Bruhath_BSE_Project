@@ -504,7 +504,7 @@ while True:
     else:
         cv2.putText(frame, "No Face Detected", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 0, 255), 3)
   
-    cv2.imshow("Head Direction Detection", frame) '# Shows the window of the camera
+    cv2.imshow("Head Direction Detection", frame) 
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
