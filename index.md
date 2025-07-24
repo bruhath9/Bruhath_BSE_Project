@@ -404,129 +404,6 @@ GPIO.setup(BUZZER_PIN, GPIO.OUT)
 mp_face_mesh = mp.solutions.face_mesh
 face_mesh = mp_face_mesh.FaceMesh(static_image_mode=False, max_num_faces=1, refine_landmarks=True)
 
-cap = cv2.VideoCapture(1)
-
-# Landmark indices
-NOSE = 1
-LEFT_FACE = 234
-RIGHT_FACE = 454
-FOREHEAD = 10
-CHIN = 152
-
-# Thresholds
-YAW_THRESHOLD = 0.05   # Left/right head turn sensitivity
-PITCH_THRESHOLD = 0.1  # Downward tilt sensitivity
-HEAD_TURN_DURATION = 3.0  # seconds
-
-# Timing variables
-head_turn_start_time = None
-buzzer_on = False
-current_status = "Looking Straight"
-
-while True:
-    ret, frame = cap.read()
-    if not ret:
-        break
-
-    frame = cv2.flip(frame, 1)  # Mirror view
-    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    results = face_mesh.process(rgb_frame)
-
-    current_time = time.time()
-
-    if results.multi_face_landmarks:
-        landmarks = results.multi_face_landmarks[0].landmark
-
-        nose_x = landmarks[NOSE].x
-        left_x = landmarks[LEFT_FACE].x
-        right_x = landmarks[RIGHT_FACE].x
-
-        # Compute yaw (left/right turn)
-        face_center_x = (left_x + right_x) / 2
-        offset_x = nose_x - face_center_x
-
-        # Compute pitch (up/down tilt)
-        nose_y = landmarks[NOSE].y
-        chin_y = landmarks[CHIN].y
-        forehead_y = landmarks[FOREHEAD].y
-
-        # Distance checks
-        down_ratio = (chin_y - nose_y) / (nose_y - forehead_y)
-
-        # Determine head direction
-        if offset_x < -YAW_THRESHOLD:
-            new_status = "Head Turned Right"
-        elif offset_x > YAW_THRESHOLD:
-            new_status = "Head Turned Left"
-        elif down_ratio > (1.0 + PITCH_THRESHOLD):
-            new_status = "Head Tilted Down"
-        else:
-            new_status = "Looking Straight"
-
-        # Handle timing for prolonged head turns
-        if new_status != "Looking Straight":
-            if head_turn_start_time is None:
-                head_turn_start_time = current_time
-            else:
-                elapsed = current_time - head_turn_start_time
-                if elapsed >= HEAD_TURN_DURATION:
-                    if not buzzer_on:
-                        GPIO.output(BUZZER_PIN, GPIO.HIGH)
-                        buzzer_on = True
-        else:
-            head_turn_start_time = None
-            if buzzer_on:
-                GPIO.output(BUZZER_PIN, GPIO.LOW)
-                buzzer_on = False
-
-        current_status = new_status
-
-        # Display text
-        cv2.putText(frame, current_status, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 3)
-        if new_status != "Looking Straight":
-            if head_turn_start_time is None:
-                head_turn_start_time = current_time
-            else:
-                elapsed = current_time - head_turn_start_time
-                if elapsed >= HEAD_TURN_DURATION:
-                    if not buzzer_on:
-                        GPIO.output(BUZZER_PIN, GPIO.HIGH)
-                        buzzer_on = True
-        else:
-            head_turn_start_time = None
-            if buzzer_on:
-                GPIO.output(BUZZER_PIN, GPIO.LOW)
-                buzzer_on = False
-
-
-    else:
-        cv2.putText(frame, "No Face Detected", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 0, 255), 3)
-
-    cv2.imshow("Head Direction Detection", frame)
-
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-
-# Cleanup
-cap.release()
-cv2.destroyAllWindows()
-GPIO.cleanup()
-
-import cv2
-import mediapipe as mp
-import numpy as np
-import RPi.GPIO as GPIO
-import time
-
-# Setup GPIO
-BUZZER_PIN = 23
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(BUZZER_PIN, GPIO.OUT)
-
-# Initialize MediaPipe
-mp_face_mesh = mp.solutions.face_mesh
-face_mesh = mp_face_mesh.FaceMesh(static_image_mode=False, max_num_faces=1, refine_landmarks=True)
-
 cap = cv2.VideoCapture(0)
 
 # Landmark indices
@@ -625,9 +502,9 @@ while True:
     else:
         cv2.putText(frame, "No Face Detected", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 0, 255), 3)
 
-    cv2.imshow("Head Direction Detection", frame)
+    cv2.imshow("Head Direction Detection", frame) '# Shows the window of the camera
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+    if cv2.waitKey(1) & 0xFF == ord('q'): # Press 'q' to exit the program
         break
 
 # Cleanup
