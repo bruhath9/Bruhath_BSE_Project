@@ -1,5 +1,5 @@
 <!-- Description goes here -->
-Inspired by the high-tech surveillance glasses in James Bond films and Meta’s next-gen AI eyewear, these smart glasses bring spy-level functionality to everyday life. With a single button, you can snap photos or record videos, automatically uploading them to Google Drive, while real-time object detection narrates your surroundings using text-to-speech.
+Inspired by cutting-edge wearable tech, these smart glasses are designed to enhance driver safety and connectivity. Equipped with real-time eye and head tracking, they detect signs of drowsiness or distraction and trigger alerts to keep drivers focused. At the same time, a built-in livestreaming feature lets users broadcast their perspective globally, merging safety with powerful remote visibility.
 
 | **Engineer** | **School** | **Area of Interest** | **Grade** |
 |:--:|:--:|:--:|:--:|
@@ -501,10 +501,11 @@ while True:
 
     else:
         cv2.putText(frame, "No Face Detected", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 0, 255), 3)
-
+  
     cv2.imshow("Head Direction Detection", frame) '# Shows the window of the camera
 
-    if cv2.waitKey(1) & 0xFF == ord('q'): # Press 'q' to exit the program
+    # Press 'q' to close the window.  
+    if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
 # Cleanup
