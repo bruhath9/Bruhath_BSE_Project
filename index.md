@@ -504,7 +504,6 @@ while True:
   
     cv2.imshow("Head Direction Detection", frame) '# Shows the window of the camera
 
-    # Press 'q' to close the window.  
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
