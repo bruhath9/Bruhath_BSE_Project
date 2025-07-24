@@ -8,6 +8,14 @@ Inspired by the high-tech surveillance glasses in James Bond films and Meta’s 
 <img src="bruheadshot.JPG" alt="Description" width="300">
   
 <!-- # Final Milestone -->
+# Modifications
+
+I've added two modifications to my original smart glasses project with object recognition. The modifications are a livestreaming feature which displays a live feed through the raspberry pi camera which can be accessed by anyone around the world, and a driver alertness system through an external camera which does two things: It tracks the car driver's eyes to combat drowsiness by detecting when the driver closes their eyes for too long and then making a loud sound to wake them up, and it also ensures that the driver's head is facing forward at the road and not to the side as if they are distracted.
+
+The livestreaming feature works through a software called Ngrok. When I initiate the live streaming server on my laptop, it's a private server, which means that it's locally hosted on my laptop for security reasons, but that means that others cannot access my live stream. This is where Ngrok comes into play. Ngrok essentially creates something called a reverse tunnel, which you can think of as an open connection between my private server and Ngrok's public servers that is secure on a specific port number. This allows anyone around the world to connect to my livestream by connecting to Ngrok's public servers. In essence, when someone clicks on the generated Ngrok link, a request gets sent first to Ngrok's public servers across the global internet. Once Ngrok receives the request, it figures out that the request is directed to my private server which Ngrok already set up a reverse tunnel for. So Ngrok simply forwards the request through the tunnel to my server, which receives the request and sends back the specific HTML code and images back to Ngrok, which then sends it back to the user who's browser displays all of the information. 
+
+The driver alertness system works through a machine learning framework developed by Google called MediaPipe. One of the modules that was created as part of MediaPipe is called FaceMesh, which creates a mesh or map of the human face with 2-digit or 3-digit numbers acting as coordinates for different parts of the face. For example, there is a coordintae for the chin, a coordinate for the nose, coordinates that surround the eyes, the mouth, etc. For the eye detection feature, I implemented the Eye-Aspect-Ratio (EAR) idea in my code where if the ratio comparing the horizontal and vertical distances of the eye crosses a certain threshold, then that's an indicator of the eyes being closed. I used the coordinates from the FaceMesh to calculate the distances for the ratio. A similar idea is used for ensuring the driver's head position is looking ahead instead of to the sides. The idea in my code is that I essentially calculated the midpoint between the farthest coordinate on my left side of my face and the farthest coordinate on the right side. Then, to detect whether or not the head is turned, I calculated the displacement between the nose coordinate and the midpoint line which is stationary, and depending on the sign of the displacement the driver has their head turned to the right or left. For example, if the driver turned their head to the right, the live displacement between their nose and the midpoint line would be negative, which indicates the driver has their head turned to the right. 
+
 
 # Third Milestone
 
@@ -379,6 +387,253 @@ cap.release()
 cv2.destroyAllWindows()
 GPIO.cleanup()
 
+#----------------------BELOW IS THE CODE FOR THE HEAD POSIITON FEATURE-------------------------------------------------------
+
+import cv2
+import mediapipe as mp
+import numpy as np
+import RPi.GPIO as GPIO
+import time
+
+# Setup GPIO
+BUZZER_PIN = 23
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(BUZZER_PIN, GPIO.OUT)
+
+# Initialize MediaPipe
+mp_face_mesh = mp.solutions.face_mesh
+face_mesh = mp_face_mesh.FaceMesh(static_image_mode=False, max_num_faces=1, refine_landmarks=True)
+
+cap = cv2.VideoCapture(1)
+
+# Landmark indices
+NOSE = 1
+LEFT_FACE = 234
+RIGHT_FACE = 454
+FOREHEAD = 10
+CHIN = 152
+
+# Thresholds
+YAW_THRESHOLD = 0.05   # Left/right head turn sensitivity
+PITCH_THRESHOLD = 0.1  # Downward tilt sensitivity
+HEAD_TURN_DURATION = 3.0  # seconds
+
+# Timing variables
+head_turn_start_time = None
+buzzer_on = False
+current_status = "Looking Straight"
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    frame = cv2.flip(frame, 1)  # Mirror view
+    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    results = face_mesh.process(rgb_frame)
+
+    current_time = time.time()
+
+    if results.multi_face_landmarks:
+        landmarks = results.multi_face_landmarks[0].landmark
+
+        nose_x = landmarks[NOSE].x
+        left_x = landmarks[LEFT_FACE].x
+        right_x = landmarks[RIGHT_FACE].x
+
+        # Compute yaw (left/right turn)
+        face_center_x = (left_x + right_x) / 2
+        offset_x = nose_x - face_center_x
+
+        # Compute pitch (up/down tilt)
+        nose_y = landmarks[NOSE].y
+        chin_y = landmarks[CHIN].y
+        forehead_y = landmarks[FOREHEAD].y
+
+        # Distance checks
+        down_ratio = (chin_y - nose_y) / (nose_y - forehead_y)
+
+        # Determine head direction
+        if offset_x < -YAW_THRESHOLD:
+            new_status = "Head Turned Right"
+        elif offset_x > YAW_THRESHOLD:
+            new_status = "Head Turned Left"
+        elif down_ratio > (1.0 + PITCH_THRESHOLD):
+            new_status = "Head Tilted Down"
+        else:
+            new_status = "Looking Straight"
+
+        # Handle timing for prolonged head turns
+        if new_status != "Looking Straight":
+            if head_turn_start_time is None:
+                head_turn_start_time = current_time
+            else:
+                elapsed = current_time - head_turn_start_time
+                if elapsed >= HEAD_TURN_DURATION:
+                    if not buzzer_on:
+                        GPIO.output(BUZZER_PIN, GPIO.HIGH)
+                        buzzer_on = True
+        else:
+            head_turn_start_time = None
+            if buzzer_on:
+                GPIO.output(BUZZER_PIN, GPIO.LOW)
+                buzzer_on = False
+
+        current_status = new_status
+
+        # Display text
+        cv2.putText(frame, current_status, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 3)
+        if new_status != "Looking Straight":
+            if head_turn_start_time is None:
+                head_turn_start_time = current_time
+            else:
+                elapsed = current_time - head_turn_start_time
+                if elapsed >= HEAD_TURN_DURATION:
+                    if not buzzer_on:
+                        GPIO.output(BUZZER_PIN, GPIO.HIGH)
+                        buzzer_on = True
+        else:
+            head_turn_start_time = None
+            if buzzer_on:
+                GPIO.output(BUZZER_PIN, GPIO.LOW)
+                buzzer_on = False
+
+
+    else:
+        cv2.putText(frame, "No Face Detected", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 0, 255), 3)
+
+    cv2.imshow("Head Direction Detection", frame)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+# Cleanup
+cap.release()
+cv2.destroyAllWindows()
+GPIO.cleanup()
+
+import cv2
+import mediapipe as mp
+import numpy as np
+import RPi.GPIO as GPIO
+import time
+
+# Setup GPIO
+BUZZER_PIN = 23
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(BUZZER_PIN, GPIO.OUT)
+
+# Initialize MediaPipe
+mp_face_mesh = mp.solutions.face_mesh
+face_mesh = mp_face_mesh.FaceMesh(static_image_mode=False, max_num_faces=1, refine_landmarks=True)
+
+cap = cv2.VideoCapture(0)
+
+# Landmark indices
+NOSE = 1
+LEFT_FACE = 234
+RIGHT_FACE = 454
+FOREHEAD = 10
+CHIN = 152
+
+# Thresholds
+YAW_THRESHOLD = 0.05   # Left/right head turn sensitivity
+PITCH_THRESHOLD = 0.1  # Downward tilt sensitivity
+HEAD_TURN_DURATION = 3.0  # seconds
+
+# Timing variables
+head_turn_start_time = None
+buzzer_on = False
+current_status = "Looking Straight"
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    frame = cv2.flip(frame, 1)  # Mirror view
+    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    results = face_mesh.process(rgb_frame)
+
+    current_time = time.time()
+
+    if results.multi_face_landmarks:
+        landmarks = results.multi_face_landmarks[0].landmark
+
+        nose_x = landmarks[NOSE].x
+        left_x = landmarks[LEFT_FACE].x
+        right_x = landmarks[RIGHT_FACE].x
+
+        # Compute yaw (left/right turn)
+        face_center_x = (left_x + right_x) / 2
+        offset_x = nose_x - face_center_x
+
+        # Compute pitch (up/down tilt)
+        nose_y = landmarks[NOSE].y
+        chin_y = landmarks[CHIN].y
+        forehead_y = landmarks[FOREHEAD].y
+
+        # Distance checks
+        down_ratio = (chin_y - nose_y) / (nose_y - forehead_y)
+
+        # Determine head direction
+        if offset_x < -YAW_THRESHOLD:
+            new_status = "Head Turned Right"
+        elif offset_x > YAW_THRESHOLD:
+            new_status = "Head Turned Left"
+        elif down_ratio > (1.0 + PITCH_THRESHOLD):
+            new_status = "Head Tilted Down"
+        else:
+            new_status = "Looking Straight"
+
+        # Handle timing for prolonged head turns
+        if new_status != "Looking Straight":
+            if head_turn_start_time is None:
+                head_turn_start_time = current_time
+            else:
+                elapsed = current_time - head_turn_start_time
+                if elapsed >= HEAD_TURN_DURATION:
+                    if not buzzer_on:
+                        GPIO.output(BUZZER_PIN, GPIO.HIGH)
+                        buzzer_on = True
+        else:
+            head_turn_start_time = None
+            if buzzer_on:
+                GPIO.output(BUZZER_PIN, GPIO.LOW)
+                buzzer_on = False
+
+        current_status = new_status
+
+        # Display text
+        cv2.putText(frame, current_status, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 3)
+        if new_status != "Looking Straight":
+            if head_turn_start_time is None:
+                head_turn_start_time = current_time
+            else:
+                elapsed = current_time - head_turn_start_time
+                if elapsed >= HEAD_TURN_DURATION:
+                    if not buzzer_on:
+                        GPIO.output(BUZZER_PIN, GPIO.HIGH)
+                        buzzer_on = True
+        else:
+            head_turn_start_time = None
+            if buzzer_on:
+                GPIO.output(BUZZER_PIN, GPIO.LOW)
+                buzzer_on = False
+
+
+    else:
+        cv2.putText(frame, "No Face Detected", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 0, 255), 3)
+
+    cv2.imshow("Head Direction Detection", frame)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+# Cleanup
+cap.release()
+cv2.destroyAllWindows()
+GPIO.cleanup()
 
 ```
 
