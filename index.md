@@ -8,6 +8,12 @@ Inspired by cutting-edge wearable tech, these smart glasses are designed to enha
 <img src="bruheadshot.JPG" alt="Description" width="300">
   
 <!-- # Final Milestone -->
+# Final Demo Video (all modifications)
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/M95Zjqw3O8w?si=IykWkUyauFiTGbkT" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+
+
 # Modifications
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/Fe1XffMTEk0?si=CDP0puDEEYwug5ww" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
