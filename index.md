@@ -8,7 +8,7 @@ Inspired by cutting-edge wearable tech, these smart glasses are designed to enha
 
 | **Engineer** | **School** | **Area of Interest** | **Grade** |
 |:--:|:--:|:--:|:--:|
-| Bruhath B | Lynbrook High School | Computer Engineering | Incoming Senior
+| Bruhath B | Lynbrook High School | Electrical Engineering | Incoming Senior
 
 <img src="bruheadshot.JPG" alt="Description" width="300">
 
